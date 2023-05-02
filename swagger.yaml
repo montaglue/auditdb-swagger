@@ -1,718 +1,854 @@
----
-swagger: "2.0"
+openapi: 3.0.3
 info:
-  description: "This is a sample server Petstore server.  You can find out more about\
-    \ Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).\
-    \  For this sample, you can use the api key `special-key` to test the authorization\
-    \ filters."
-  version: "1.0.5"
-  title: "Swagger Petstore"
-  termsOfService: "http://swagger.io/terms/"
-  contact:
-    email: "apiteam@swagger.io"
-  license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "petstore.swagger.io"
-basePath: "/v2"
-tags:
-- name: "pet"
-  description: "Everything about your Pets"
-  externalDocs:
-    description: "Find out more"
-    url: "http://swagger.io"
-- name: "store"
-  description: "Access to Petstore orders"
-- name: "user"
-  description: "Operations about user"
-  externalDocs:
-    description: "Find out more about our store"
-    url: "http://swagger.io"
-schemes:
-- "https"
-- "http"
+  title: New version of backend
+  version: 1.0.0
+  contact: {}
+servers:
+- url: https://dev.auditdb.io
 paths:
-  /pet/{petId}/uploadImage:
+  /api/auth/login:
     post:
       tags:
-      - "pet"
-      summary: "uploads an image"
-      description: ""
-      operationId: "uploadFile"
-      consumes:
-      - "multipart/form-data"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet to update"
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "additionalMetadata"
-        in: "formData"
-        description: "Additional data to pass to server"
-        required: false
-        type: "string"
-      - name: "file"
-        in: "formData"
-        description: "file to upload"
-        required: false
-        type: "file"
+      - User service
+      summary: Login
+      description: Login
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: test
+                password:
+                  type: string
+                  example: test
+            example:
+              email: test
+              password: test
       responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/ApiResponse"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet:
+        '200':
+          description: ''
+  /api/user:
     post:
       tags:
-      - "pet"
-      summary: "Add a new pet to the store"
-      description: ""
-      operationId: "addPet"
-      consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
+      - User service
+      summary: Create User
+      description: Create User
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_role:
+                  type: string
+                  example: customer
+                email:
+                  type: string
+                  example: test
+                name:
+                  type: string
+                  example: test
+                password:
+                  type: string
+                  example: test
+            example:
+              current_role: customer
+              email: test
+              name: test
+              password: test
+      responses:
+        '200':
+          description: ''
+  /api/user/{id}:
+    parameters:
+      - in: path
+        name: id
         required: true
         schema:
-          $ref: "#/definitions/Pet"
-      responses:
-        405:
-          description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-    put:
-      tags:
-      - "pet"
-      summary: "Update an existing pet"
-      description: ""
-      operationId: "updatePet"
-      consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/Pet"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-        405:
-          description: "Validation exception"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet/findByStatus:
+          type: string
+        example: 644519627a6706aee6f51970
+        description: The user ID
     get:
-      tags:
-      - "pet"
-      summary: "Finds Pets by status"
-      description: "Multiple status values can be provided with comma separated strings"
-      operationId: "findPetsByStatus"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "status"
-        in: "query"
-        description: "Status values that need to be considered for filter"
-        required: true
-        type: "array"
-        items:
-          type: "string"
-          enum:
-          - "available"
-          - "pending"
-          - "sold"
-          default: "available"
-        collectionFormat: "multi"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid status value"
       security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet/findByTags:
-    get:
+        - bearerAuth: []
       tags:
-      - "pet"
-      summary: "Finds Pets by tags"
-      description: "Multiple tags can be provided with comma separated strings. Use\
-        \ tag1, tag2, tag3 for testing."
-      operationId: "findPetsByTags"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "tags"
-        in: "query"
-        description: "Tags to filter by"
-        required: true
-        type: "array"
-        items:
-          type: "string"
-        collectionFormat: "multi"
+      - User service
+      summary: Get User
+      description: Get User
+      operationId: getUser
       responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid tag value"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-      deprecated: true
-  /pet/{petId}:
-    get:
-      tags:
-      - "pet"
-      summary: "Find pet by ID"
-      description: "Returns a single pet"
-      operationId: "getPetById"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet to return"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-      security:
-      - api_key: []
-    post:
-      tags:
-      - "pet"
-      summary: "Updates a pet in the store with form data"
-      description: ""
-      operationId: "updatePetWithForm"
-      consumes:
-      - "application/x-www-form-urlencoded"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet that needs to be updated"
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "name"
-        in: "formData"
-        description: "Updated name of the pet"
-        required: false
-        type: "string"
-      - name: "status"
-        in: "formData"
-        description: "Updated status of the pet"
-        required: false
-        type: "string"
-      responses:
-        405:
-          description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
+        '200':
+          description: ''
     delete:
-      tags:
-      - "pet"
-      summary: "Deletes a pet"
-      description: ""
-      operationId: "deletePet"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "api_key"
-        in: "header"
-        required: false
-        type: "string"
-      - name: "petId"
-        in: "path"
-        description: "Pet id to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
       security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /store/order:
-    post:
+        - bearerAuth: []
       tags:
-      - "store"
-      summary: "Place an order for a pet"
-      description: ""
-      operationId: "placeOrder"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "order placed for purchasing the pet"
-        required: true
-        schema:
-          $ref: "#/definitions/Order"
+      - User service
+      summary: Delete User
+      description: Delete User
+      operationId: deleteUser
       responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Order"
-        400:
-          description: "Invalid Order"
-  /store/order/{orderId}:
-    get:
-      tags:
-      - "store"
-      summary: "Find purchase order by ID"
-      description: "For valid response try integer IDs with value >= 1 and <= 10.\
-        \ Other values will generated exceptions"
-      operationId: "getOrderById"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "orderId"
-        in: "path"
-        description: "ID of pet that needs to be fetched"
-        required: true
-        type: "integer"
-        maximum: 10
-        minimum: 1
-        format: "int64"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Order"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Order not found"
-    delete:
-      tags:
-      - "store"
-      summary: "Delete purchase order by ID"
-      description: "For valid response try integer IDs with positive integer value.\
-        \ Negative or non-integer values will generate API errors"
-      operationId: "deleteOrder"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "orderId"
-        in: "path"
-        description: "ID of the order that needs to be deleted"
-        required: true
-        type: "integer"
-        minimum: 1
-        format: "int64"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Order not found"
-  /store/inventory:
-    get:
-      tags:
-      - "store"
-      summary: "Returns pet inventories by status"
-      description: "Returns a map of status codes to quantities"
-      operationId: "getInventory"
-      produces:
-      - "application/json"
-      parameters: []
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "object"
-            additionalProperties:
-              type: "integer"
-              format: "int32"
+        '200':
+          description: ''
+    patch:
       security:
-      - api_key: []
-  /user/createWithArray:
-    post:
+        - bearerAuth: []
       tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithArrayInput"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
+      - User service
+      summary: Change User
+      description: Change User
+      operationId: changeUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: new_name
+            example:
+              name: new_name
+      responses:
+        '200':
+          description: ''
+  /api/user/my_user:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+      - User service
+      summary: My User
+      description: My User
+      operationId: myUser
+      responses:
+        '200':
+          description: ''
+  /api/customer:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+      - Customer service
+      summary: Create customer
+      description: Create customer
+      operationId: createCustomer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                about:
+                  type: string
+                  example: ''
+                avatar:
+                  type: string
+                  example: ''
+                company:
+                  type: string
+                  example: ''
+                contacts:
+                  type: object
+                  properties:
+                    test:
+                      type: string
+                      example: test
+                first_name:
+                  type: string
+                  example: name
+                last_name:
+                  type: string
+                  example: name
+                public_contacts:
+                  type: boolean
+                  example: true
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    example: test
+                  example:
+                  - test
+            example:
+              about: ''
+              avatar: ''
+              company: ''
+              contacts:
+                test: test
+              first_name: name
+              last_name: name
+              public_contacts: true
+              tags:
+              - test
+      responses:
+        '200':
+          description: ''
+  /api/customer/{id}:
+    parameters:
+      - in: path
+        name: id
         required: true
         schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-  /user/createWithList:
-    post:
-      tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithListInput"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
-        required: true
-        schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-  /user/{username}:
+          type: string
     get:
       tags:
-      - "user"
-      summary: "Get user by user name"
-      description: ""
-      operationId: "getUserByName"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be fetched. Use user1 for testing. "
-        required: true
-        type: "string"
+      - Customer service
+      summary: Get Customer
+      description: Get Customer
+      operationId: getCustomer
       responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/User"
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-    put:
-      tags:
-      - "user"
-      summary: "Updated user"
-      description: "This can only be done by the logged in user."
-      operationId: "updateUser"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "body"
-        description: "Updated user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        400:
-          description: "Invalid user supplied"
-        404:
-          description: "User not found"
+        '200':
+          description: ''
     delete:
+      security:
+        - bearerAuth: []
       tags:
-      - "user"
-      summary: "Delete user"
-      description: "This can only be done by the logged in user."
-      operationId: "deleteUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be deleted"
-        required: true
-        type: "string"
+      - Customer service
+      summary: Delete customer
+      description: Delete customer
+      operationId: deleteCustomer
       responses:
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-  /user/login:
+        '200':
+          description: ''
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+      - Customer service
+      summary: Change customer
+      description: Change customer
+      operationId: changeCustomer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: new name
+            example:
+              first_name: new name
+      responses:
+        '200':
+          description: ''
+  /api/my_customer:
     get:
+      security:
+        - bearerAuth: []
       tags:
-      - "user"
-      summary: "Logs user into the system"
-      description: ""
-      operationId: "loginUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "query"
-        description: "The user name for login"
-        required: true
-        type: "string"
-      - name: "password"
-        in: "query"
-        description: "The password for login in clear text"
-        required: true
-        type: "string"
+      - Customer service
+      summary: My customer
+      description: My customer
+      operationId: myCustomer
       responses:
-        200:
-          description: "successful operation"
-          headers:
-            X-Expires-After:
-              type: "string"
-              format: "date-time"
-              description: "date in UTC when token expires"
-            X-Rate-Limit:
-              type: "integer"
-              format: "int32"
-              description: "calls per hour allowed by the user"
-          schema:
-            type: "string"
-        400:
-          description: "Invalid username/password supplied"
-  /user/logout:
-    get:
-      tags:
-      - "user"
-      summary: "Logs out current logged in user session"
-      description: ""
-      operationId: "logoutUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters: []
-      responses:
-        default:
-          description: "successful operation"
-  /user:
+        '200':
+          description: ''
+  /api/project:
     post:
+      security:
+        - bearerAuth: []
       tags:
-      - "user"
-      summary: "Create user"
-      description: "This can only be done by the logged in user."
-      operationId: "createUser"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Created user object"
+      - Customer service
+      summary: Create project
+      description: Create project
+      operationId: createProject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: test
+                name:
+                  type: string
+                  example: test
+                price:
+                  type: number
+                  example: 10
+                publish_options:
+                  type: object
+                  properties:
+                    publish:
+                      type: boolean
+                      example: true
+                    ready_to_wait:
+                      type: boolean
+                      example: true
+                scope:
+                  type: array
+                  items:
+                    type: string
+                    example: test
+                  example:
+                  - test
+                status:
+                  type: string
+                  example: test
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    example: test
+                  example:
+                  - test
+            example:
+              description: test
+              name: test
+              price: 10
+              publish_options:
+                publish: true
+                ready_to_wait: true
+              scope:
+              - test
+              status: test
+              tags:
+              - test
+      responses:
+        '200':
+          description: ''
+  /api/project/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        example: 
+    get:
+      tags:
+      - Customer service
+      summary: Get project
+      description: Get project
+      operationId: getProject
+      responses:
+        '200':
+          description: ''
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+      - Customer service
+      summary: Delete project
+      description: Delete project
+      operationId: deleteProject
+      responses:
+        '200':
+          description: ''
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+      - Customer service
+      summary: Change project
+      description: Change project
+      operationId: changeProject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: new_name
+            example:
+              name: new_name
+      responses:
+        '200':
+          description: ''
+  /api/my_project:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+      - Customer service
+      summary: My project
+      description: My project
+      operationId: myProject
+      responses:
+        '200':
+          description: ''
+  /api/auditor:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+      - Auditor service
+      summary: Create auditor
+      description: Create auditor
+      operationId: createAuditor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                about:
+                  type: string
+                  example: ''
+                avatar:
+                  type: string
+                  example: ''
+                company:
+                  type: string
+                  example: ''
+                contacts:
+                  type: object
+                  properties:
+                    test:
+                      type: string
+                      example: test
+                first_name:
+                  type: string
+                  example: name
+                free_at:
+                  type: string
+                  example: ''
+                last_name:
+                  type: string
+                  example: name
+                price_range:
+                  type: object
+                  properties:
+                    from:
+                      type: number
+                      example: 10
+                    to:
+                      type: number
+                      example: 100
+                public_contacts:
+                  type: boolean
+                  example: true
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    example: test
+                  example:
+                  - test
+            example:
+              about: ''
+              avatar: ''
+              company: ''
+              contacts:
+                test: test
+              first_name: name
+              free_at: ''
+              last_name: name
+              price_range:
+                from: 10
+                to: 100
+              public_contacts: true
+              tags:
+              - test
+      responses:
+        '200':
+          description: ''
+  /api/my_auditor:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+      - Auditor service
+      summary: My auditor
+      description: My auditor
+      operationId: myAuditor
+      responses:
+        '200':
+          description: ''
+  /api/audit_request:
+    post:
+      security:
+        - bearerAuth: []
+    
+      tags:
+      - Audit service
+      summary: Create request
+      description: Create request
+      operationId: createRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auditor_id:
+                  type: string
+                  example: 643e1268e9c98734100ab480
+                customer_id:
+                  type: string
+                  example: 643e1268e9c98734100ab480
+                description:
+                  type: string
+                  example: ''
+                project_id:
+                  type: string
+                  example: 643e21aee27db77a0354f8ed
+                time:
+                  type: object
+                  properties:
+                    from:
+                      type: string
+                      example: 21.04.2002
+                    to:
+                      type: string
+                      example: 21.04.2002
+            example:
+              auditor_id: 643e1268e9c98734100ab480
+              customer_id: 643e1268e9c98734100ab480
+              description: ''
+              project_id: 643e21aee27db77a0354f8ed
+              time:
+                from: 21.04.2002
+                to: 21.04.2002
+      responses:
+        '200':
+          description: ''
+  /api/audit_request/{id}:
+    parameters:
+      - in: path
+        name: id
         required: true
         schema:
-          $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-securityDefinitions:
-  api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
-  petstore_auth:
-    type: "oauth2"
-    authorizationUrl: "https://petstore.swagger.io/oauth/authorize"
-    flow: "implicit"
-    scopes:
-      read:pets: "read your pets"
-      write:pets: "modify pets in your account"
-definitions:
-  ApiResponse:
-    type: "object"
-    properties:
-      code:
-        type: "integer"
-        format: "int32"
-      type:
-        type: "string"
-      message:
-        type: "string"
-  Category:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      name:
-        type: "string"
-    xml:
-      name: "Category"
-  Pet:
-    type: "object"
-    required:
-    - "name"
-    - "photoUrls"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      category:
-        $ref: "#/definitions/Category"
-      name:
-        type: "string"
-        example: "doggie"
-      photoUrls:
-        type: "array"
-        xml:
-          wrapped: true
-        items:
-          type: "string"
-          xml:
-            name: "photoUrl"
+          type: string
+    get:
+      security:
+        - bearerAuth: []
       tags:
-        type: "array"
-        xml:
-          wrapped: true
-        items:
-          xml:
-            name: "tag"
-          $ref: "#/definitions/Tag"
-      status:
-        type: "string"
-        description: "pet status in the store"
-        enum:
-        - "available"
-        - "pending"
-        - "sold"
-    xml:
-      name: "Pet"
-  Tag:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      name:
-        type: "string"
-    xml:
-      name: "Tag"
-  Order:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      petId:
-        type: "integer"
-        format: "int64"
-      quantity:
-        type: "integer"
-        format: "int32"
-      shipDate:
-        type: "string"
-        format: "date-time"
-      status:
-        type: "string"
-        description: "Order Status"
-        enum:
-        - "placed"
-        - "approved"
-        - "delivered"
-      complete:
-        type: "boolean"
-    xml:
-      name: "Order"
-  User:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      username:
-        type: "string"
-      firstName:
-        type: "string"
-      lastName:
-        type: "string"
-      email:
-        type: "string"
-      password:
-        type: "string"
-      phone:
-        type: "string"
-      userStatus:
-        type: "integer"
-        format: "int32"
-        description: "User Status"
-    xml:
-      name: "User"
-externalDocs:
-  description: "Find out more about Swagger"
-  url: "http://swagger.io"
+      - Audit service
+      summary: Get request
+      description: Get request
+      operationId: getRequest
+      responses:
+        '200':
+          description: ''
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+      - Audit service
+      summary: Delete request
+      description: Delete request
+      operationId: deleteRequest
+      responses:
+        '200':
+          description: ''
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+      - Audit service
+      summary: Change request
+      description: Change request
+      operationId: changeRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: new desc
+            example:
+              description: new desc
+      responses:
+        '200':
+          description: ''
+  /api/my_audit_request/{role}:
+    parameters:
+      - in: path
+        name: role
+        required: true
+        schema:
+          type: string
+        description: customer or auditor
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+      - Audit service
+      summary: My request
+      description: My request
+      operationId: myRequest
+      responses:
+        '200':
+          description: ''
+  /api/audit:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+      - Audit service
+      summary: Create audit
+      description: Create audit
+      operationId: createAudit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auditor_contacts:
+                  type: object
+                  properties:
+                    test:
+                      type: string
+                      example: test
+                auditor_id:
+                  type: string
+                  example: 643e1268e9c98734100ab480
+                customer_contacts:
+                  type: object
+                  properties: {}
+                customer_id:
+                  type: string
+                  example: 643e1268e9c98734100ab480
+                description:
+                  type: string
+                  example: ''
+                id:
+                  type: string
+                  example: 643e26d96d7c9d1d29f037c8
+                price:
+                  type: number
+                  example: 42
+                price_range:
+                  type: object
+                  properties:
+                    from:
+                      type: number
+                      example: 10
+                    to:
+                      type: number
+                      example: 100
+                project_avatar:
+                  type: string
+                  example: ''
+                project_id:
+                  type: string
+                  example: 643e21aee27db77a0354f8ed
+                project_name:
+                  type: string
+                  example: new_name
+                project_scope:
+                  type: array
+                  items:
+                    type: string
+                    example: test
+                  example:
+                  - test
+                time:
+                  type: object
+                  properties:
+                    from:
+                      type: string
+                      example: 21.04.2002
+                    to:
+                      type: string
+                      example: 21.04.2002
+            example:
+              auditor_contacts:
+                test: test
+              auditor_id: 643e1268e9c98734100ab480
+              customer_contacts: {}
+              customer_id: 643e1268e9c98734100ab480
+              description: ''
+              id: 643e26d96d7c9d1d29f037c8
+              price: 42
+              price_range:
+                from: 10
+                to: 100
+              project_avatar: ''
+              project_id: 643e21aee27db77a0354f8ed
+              project_name: new_name
+              project_scope:
+              - test
+              time:
+                from: 21.04.2002
+                to: 21.04.2002
+      responses:
+        '200':
+          description: ''
+  /api/audit/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+      - Audit service
+      summary: Get audit
+      description: Get audit
+      operationId: getAudit
+      responses:
+        '200':
+          description: ''
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+      - Audit service
+      summary: Delete audit
+      description: Delete audit
+      operationId: deleteAudit
+      responses:
+        '200':
+          description: ''
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+      - Audit service
+      summary: Change audit
+      description: Change audit
+      operationId: changeAudit
+      responses:
+        '200':
+          description: ''
+  /api/my_audit/{role}:
+    parameters:
+      - in: path
+        name: role
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+      - Audit service
+      summary: My audit
+      description: My audit
+      operationId: myAudit
+      responses:
+        '200':
+          description: ''
+  /api/file:
+    post:
+  
+      security:
+        - bearerAuth: []
+      tags:
+      - File service
+      summary: Create file
+      description: Create file
+      operationId: createFile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                auditorId:
+                  type: string
+                  example: 643e1268e9c98734100ab480
+                customerId:
+                  type: string
+                  example: 643e1268e9c98734100ab480
+                file:
+                  type: string
+                  format: binary
+                original_name:
+                  type: string
+                  example: test.png
+                path:
+                  type: string
+                  example: lol
+                private:
+                  type: string
+                  example: 'true'
+      responses:
+        '200':
+          description: ''
+  /api/file/{path}:
+    parameters:
+      - in: path
+        required: true
+        schema:
+          type: string
+        name: path
+    get:
+      tags:
+      - File service
+      summary: Get file
+      description: Get file
+      operationId: getFile
+      responses:
+        '200':
+          description: ''
+  /api/search:
+    get:
+      tags:
+      - Search service
+      summary: search
+      description: search
+      operationId: search
+      parameters:
+      - name: query
+        in: query
+        schema:
+          type: string
+          example: ''
+      - name: tags
+        in: query
+        schema:
+          type: string
+          example: ''
+      - name: page
+        in: query
+        schema:
+          type: string
+          example: '0'
+      - name: per_page
+        in: query
+        schema:
+          type: string
+          example: '0'
+      - name: kind
+        in: query
+        schema:
+          type: string
+          example: audit_request
+      - name: price_from
+        in: query
+        schema:
+          type: string
+          example: '65'
+      - name: price_to
+        in: query
+        schema:
+          type: string
+          example: '67'
+      responses:
+        '200':
+          description: ''
+tags:
+- name: User service
+- name: Customer service
+- name: Auditor service
+- name: Audit service
+- name: File service
+- name: Search service
+
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
+
+
